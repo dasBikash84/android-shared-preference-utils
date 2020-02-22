@@ -15,6 +15,10 @@ import java.io.Serializable
  *
  * Supports multiple Shared preference instances
  *
+ * If object implements both Serializable & Parcelable
+ * then use <b>getSerializableData(context: Context, key: String,type:Class<T>)</b>
+ * to read object from Shared Preferences.
+ *
  * @author Bikash Das(das.bikash.dev@gmail.com)
  * */
 class SharedPreferenceUtils(private val SP_FILE_KEY:String){
