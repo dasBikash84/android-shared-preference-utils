@@ -207,17 +207,17 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
 
     companion object{
 
-        private val DEFAULT_SP_FILE_KEY:String =
-            "com.dasbikash.android_shared_preference_utils.SharedPreferenceUtils.DEFAULT_SP_FILE_KEY"
+        private val DEFAULT_SP_FILE_NAME:String =
+            "com.dasbikash.android_shared_preference_utils.SharedPreferenceUtils.DEFAULT_SP_FILE_NAME"
 
         /**
          * Returns class instance for given Shared Preferences storage file
          *
-         * @param SP_FILE_KEY Shared Preferences storage file name
+         * @param spFileName Shared Preferences storage file name
          * @return instance of SharedPreferenceUtils
          * */
         @JvmStatic
-        fun getInstance(SP_FILE_KEY:String = DEFAULT_SP_FILE_KEY) = SharedPreferenceUtils(SP_FILE_KEY)
+        fun getInstance(spFileName:String) = SharedPreferenceUtils(spFileName)
 
 
         /**
@@ -226,6 +226,6 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
          * @return instance of SharedPreferenceUtils that points to default file.
          * */
         @JvmStatic
-        fun getDefaultInstance() = SharedPreferenceUtils(DEFAULT_SP_FILE_KEY)
+        fun getDefaultInstance() = SharedPreferenceUtils(DEFAULT_SP_FILE_NAME)
     }
 }
