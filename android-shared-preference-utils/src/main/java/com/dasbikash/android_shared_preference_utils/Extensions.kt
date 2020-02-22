@@ -65,6 +65,6 @@ internal fun <T : Parcelable> byteArrayToParcelable(bytes: ByteArray, creator: P
 internal fun byteArrayToParcel(bytes: ByteArray): Parcel {
     val parcel = Parcel.obtain()
     parcel.unmarshall(bytes, 0, bytes.size)
-    parcel.setDataPosition(0) // this is extremely important!
+    parcel.setDataPosition(0)
     return parcel
 }
