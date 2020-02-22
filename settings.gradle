@@ -1,0 +1,2 @@
+include ':android-shared-preference-utils'
+rootProject.name='Android Shared Preference Utils'
