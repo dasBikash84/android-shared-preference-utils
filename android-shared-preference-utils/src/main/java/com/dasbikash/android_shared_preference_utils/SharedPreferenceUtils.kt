@@ -140,11 +140,10 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
      *
      * @param context Android Context
      * @param key unique key to the object to be saved
-     * @param type subject class type
      * @param 'instance' of subject type if found else null
      * */
     fun <T : Parcelable> getParcelableData(context: Context, key: String,
-                                           type:Class<T>,creator: Parcelable.Creator<T>): T? {
+                                           creator: Parcelable.Creator<T>): T? {
         var retVal:T? = null
         getSharedPreferences(context).let {
             if (it.contains(key)){
