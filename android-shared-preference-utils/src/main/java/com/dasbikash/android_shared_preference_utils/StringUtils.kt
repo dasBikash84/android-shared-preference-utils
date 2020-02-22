@@ -2,16 +2,10 @@ package com.dasbikash.android_shared_preference_utils
 
 import android.os.Parcel
 import android.os.Parcelable
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 internal fun ByteArray.toCharArray():CharArray{
     val charArray = CharArray(this.size)
