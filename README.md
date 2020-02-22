@@ -1,6 +1,6 @@
 # android-shared-preference-utils
 
-Extension of android native Shared Preference Library with support for <h4>Serializable</h4> and <h4>Parcelable</h4> data types.
+Extension of android native Shared Preference Library with support for <strong>Serializable</strong> and <strong>Parcelable</strong> data types.
 
 [![](https://jitpack.io/v/dasBikash84/android-shared-preference-utils.svg)](https://jitpack.io/#dasBikash84/android-shared-preference-utils)
 
