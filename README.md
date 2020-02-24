@@ -59,7 +59,7 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
     }
 ```
 
-##### Save and retrieve `Serializable` data types:
+##### Save and retrieve classes that implement `Serializable` interface:
 
 ```
     val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
@@ -74,7 +74,7 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
         println(it)
     }
 ```
-##### Save and retrieve `Parcelable` data types:
+##### Save and retrieve classes that implement `Parcelable` interface:
 
 ```
     val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
@@ -86,6 +86,23 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
 
     //read and print data
     defaultUtils.getParcelableData(context,SER_SP_KEY,Student::class.java)?.let {
+        println(it)
+    }
+```
+
+
+##### Save and retrieve class that implements both `Serializable` and `Parcelable` interfaces:
+
+```
+    val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
+    val SER_SP_KEY = "SER_SP_KEY"
+    val student = Student() //Student class implements Serializable and Parcelable both
+
+    //save data
+    defaultUtils.saveData(context,student,SER_SP_KEY)
+
+    //read and print data
+    defaultUtils.getSerializableData(context,SER_SP_KEY,Student::class.java)?.let {
         println(it)
     }
 ```
