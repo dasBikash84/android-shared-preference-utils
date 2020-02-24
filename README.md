@@ -78,14 +78,14 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
 
 ```
     val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
-    val PARCELABLE_SP_KEY = "SER_SP_KEY"
+    val PARCELABLE_SP_KEY = "PARCELABLE_SP_KEY"
     val student = Student() //Student class implements Parcelable
 
     //save data
-    defaultUtils.saveData(context,student,SER_SP_KEY)
+    defaultUtils.saveData(context,student,PARCELABLE_SP_KEY)
 
     //read and print data
-    defaultUtils.getParcelableData(context,SER_SP_KEY,Student::class.java)?.let {
+    defaultUtils.getParcelableData(context,PARCELABLE_SP_KEY,Student::class.java)?.let {
         println(it)
     }
 ```
@@ -95,14 +95,14 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
 
 ```
     val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
-    val SER_SP_KEY = "SER_SP_KEY"
+    val SER_PER_SP_KEY = "SER_PER_SP_KEY"
     val student = Student() //Student class implements Serializable and Parcelable both
 
     //save data
-    defaultUtils.saveData(context,student,SER_SP_KEY)
+    defaultUtils.saveData(context,student,SER_PER_SP_KEY)
 
     //read and print data
-    defaultUtils.getSerializableData(context,SER_SP_KEY,Student::class.java)?.let {
+    defaultUtils.getSerializableData(context,SER_PER_SP_KEY,Student::class.java)?.let {
         println(it)
     }
 ```
