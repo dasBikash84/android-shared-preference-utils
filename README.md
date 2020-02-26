@@ -1,8 +1,8 @@
-# android-shared-preference-utils
+# shared-preferences-ext
 
 Extension of android native Shared Preference Library with support for **Serializable** and **Parcelable** data types.
 
-[![](https://jitpack.io/v/dasBikash84/android-shared-preference-utils.svg)](https://jitpack.io/#dasBikash84/android-shared-preference-utils)
+[![](https://jitpack.io/v/dasBikash84/shared-preferences-ext.svg)](https://jitpack.io/#dasBikash84/shared-preferences-ext)
 
 ## Dependency
 
@@ -19,7 +19,7 @@ allprojects {
 Then, add the library to your module `build.gradle`
 ```gradle
 dependencies {
-    implementation 'com.github.dasBikash84:android-shared-preference-utils:latest.release.here'
+    implementation 'com.github.dasBikash84:shared-preferences-ext:latest.release.here'
 }
 ```
 
@@ -29,7 +29,7 @@ dependencies {
 - Data can be saved either by suspension, asynchronous or blocking function call.
 - Data retrieve can be done via suspension/blocking methods.
 - Interface for accessing Shared preferences simplified.
-- If saved object implements both Serializable & Parcelable then use [`getSerializableData`](https://github.com/dasBikash84/android-shared-preference-utils/blob/master/android-shared-preference-utils/src/main/java/com/dasbikash/android_shared_preference_utils/SharedPreferenceUtils.kt) method to read object from Shared Preferences.
+- If saved object implements both Serializable & Parcelable then use [`getSerializableData`](https://github.com/dasBikash84/shared-preferences-ext/blob/master/android-shared-preference-utils/src/main/java/com/dasbikash/android_shared_preference_utils/SharedPreferenceUtils.kt) method to read object from Shared Preferences.
 
 ## Usage example
 
