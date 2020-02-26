@@ -1,4 +1,4 @@
-package com.dasbikash.android_shared_preference_utils
+package com.dasbikash.shared_preference_ext
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

@@ -1,4 +1,4 @@
-package com.dasbikash.android_shared_preference_utils
+package com.dasbikash.shared_preference_ext
 
 import org.junit.Test
 

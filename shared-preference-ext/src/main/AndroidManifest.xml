@@ -1,2 +1,2 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dasbikash.android_shared_preference_utils"/>
+    package="com.dasbikash.shared_preference_ext"/>

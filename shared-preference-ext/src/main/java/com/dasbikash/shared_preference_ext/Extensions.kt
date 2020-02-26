@@ -1,4 +1,4 @@
-package com.dasbikash.android_shared_preference_utils
+package com.dasbikash.shared_preference_ext
 
 import android.os.Parcel
 import android.os.Parcelable

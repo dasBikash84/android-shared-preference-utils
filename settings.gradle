@@ -1,2 +1,2 @@
-include ':android-shared-preference-utils'
+include ':shared-preference-ext'
 rootProject.name='Android Shared Preference Utils'
