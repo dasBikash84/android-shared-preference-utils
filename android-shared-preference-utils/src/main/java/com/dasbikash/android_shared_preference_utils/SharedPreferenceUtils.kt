@@ -42,7 +42,7 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
         getSharedPreferences(context).edit()
 
     /**
-     * Method to save(blocking) object on Shared Preference
+     * Method(blocking) to save object on Shared Preference
      *
      * @param context Android Context
      * @param data object for saving of supported data types(Primitive,Serializable,Parcelable)
@@ -52,6 +52,16 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
     fun saveDataSync(context: Context, data: Any, key: String):Boolean {
         return saveData(getSpEditor(context),data, key,true)
     }
+    /**
+     * Method to save object on Shared Preference with suspension
+     *
+     * @param context Android Context
+     * @param data object for saving of supported data types(Primitive,Serializable,Parcelable)
+     * @param key unique key to the object to be saved
+     * @return 'true' if saved else 'false'(for un-supported data types)
+     * */
+    suspend fun saveDataSuspended(context: Context, data: Any, key: String):Boolean
+        = runSuspended{ saveData(getSpEditor(context),data, key,true) }!!
 
     /**
      * Method to save(async) object on Shared Preference
@@ -65,13 +75,159 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
         return saveData(getSpEditor(context),data, key)
     }
 
+    /**
+     * Method to save Set of objects that implements Serializable on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Set of object for saving
+     * @param key unique key to the object to be saved
+     * @param saveSynced Whether should be saved synced
+     * */
+    fun <T : Serializable> saveSerializableSet(context: Context, data: Set<T>, key: String,
+                                               saveSynced:Boolean=false) {
+        val editor = getSpEditor(context)
+        data.map { it.toByteArray().toSerializedString() }.toMutableSet().let {
+            editor.putStringSet(key,it)
+        }
+        if (saveSynced){
+            editor.apply()
+        }
+    }
+
+    /**
+     * Method(blocking) to save Set of objects that implements Serializable on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Set of object for saving
+     * @param key unique key to the object to be saved
+     * */
+    fun <T : Serializable> saveSerializableSetSync(context: Context, data: Set<T>, key: String) =
+        saveSerializableSet(context, data, key,true)
+
+    /**
+     * Method(suspend) to save Set of objects that implements Serializable on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Set of object for saving
+     * @param key unique key to the object to be saved
+     * */
+    suspend fun <T : Serializable> saveSerializableSetSuspended(context: Context, data: Set<T>, key: String) =
+        runSuspended { saveSerializableSet(context, data, key,true)}
+
+    /**
+     * Method(blocking) to read object Set of Class, that implements Serializable from Shared Preference
+     *
+     * @param context Android Context
+     * @param key unique key to the object to be saved
+     * @param setType subject class type
+     * @return Set of subject type if found else null
+     * */
+    fun <T : Serializable> getSerializableSet(context: Context, setType:Class<T>, key: String):Set<T>? {
+        if (checkIfExists(context, key)){
+            try {
+                getSharedPreferences(context)
+                    .getStringSet(key, mutableSetOf())
+                    ?.let {
+                        if (it.isNotEmpty()) {
+                            return it.map { it.deserialize().toSerializable(setType) }.toSet()
+                        }
+                    }
+            }catch (ex:Throwable){ex.printStackTrace()}
+        }
+        return null
+    }
+
+    /**
+     * Method to read object Set of Class, that implements Serializable, with suspension
+     *
+     * @param context Android Context
+     * @param key unique key to the object to be saved
+     * @param setType subject class type
+     * @return Set of subject type if found else null
+     * */
+    suspend fun <T : Serializable> getSerializableSetSuspended(context: Context, setType:Class<T>, key: String)
+            :Set<T>? = runSuspended { getSerializableSet(context, setType, key) }
+
+    /**
+     * Method to save Set of objects that implements Parcelable on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Set of object for saving
+     * @param key unique key to the object to be saved
+     * @param saveSynced Whether should be saved synced
+     * */
+    fun <T : Parcelable> saveParcelableSet(context: Context, data: Set<T>, key: String,
+                                           saveSynced:Boolean=false) {
+        val editor = getSpEditor(context)
+        data.map { parcelableToSerializedString(it) }.toMutableSet().let {
+            editor.putStringSet(key,it)
+        }
+        if (saveSynced){
+            editor.apply()
+        }
+    }
+
+    /**
+     * Method(blocking) to save Set of objects that implements Parcelable on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Set of object for saving
+     * @param key unique key to the object to be saved
+     * */
+    fun <T : Parcelable> saveParcelableSetSync(context: Context, data: Set<T>, key: String) =
+        saveParcelableSet(context, data, key,true)
+
+    /**
+     * Method(suspend) to save Set of objects that implements Parcelable on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Set of object for saving
+     * @param key unique key to the object to be saved
+     * */
+    suspend fun <T : Parcelable> saveParcelableSetSuspended(context: Context, data: Set<T>, key: String) =
+        runSuspended { saveParcelableSet(context, data, key,true)}
+
+    /**
+     * Method(blocking) to read object Set of Class, that implements Parcelable
+     *
+     * @param context Android Context
+     * @param creator Parcelable.Creator of subject type
+     * @param key unique key to the object to be saved
+     * @return Set of subject type if found else null
+     * */
+    fun <T : Parcelable> getParcelableSet(context: Context,creator: Parcelable.Creator<T>, key: String):Set<T>? {
+        if (checkIfExists(context, key)){
+            try {
+                getSharedPreferences(context)
+                    .getStringSet(key, mutableSetOf())
+                    ?.let {
+                        if (it.isNotEmpty()) {
+                            return it.map { it.toParcelable(creator) }.toSet()
+                        }
+                    }
+            }catch (ex:Throwable){ex.printStackTrace()}
+        }
+        return null
+    }
+
+    /**
+     * Method to read object Set of Class, that implements Parcelable, with suspension
+     *
+     * @param context Android Context
+     * @param creator Parcelable.Creator of subject type
+     * @param key unique key to the object to be saved
+     * @return Set of subject type if found else null
+     * */
+    suspend fun <T : Parcelable> getParcelableSetSuspended(context: Context,creator: Parcelable.Creator<T>, key: String)
+            :Set<T>? = runSuspended { getParcelableSet(context, creator, key) }
+
     private fun saveData(editor: SharedPreferences.Editor, data: Any, key: String,
                          saveSynced:Boolean=false):Boolean{
         when (data) {
-            is Long     -> editor.putLong(key, data as Long)
-            is Int      -> editor.putInt(key, data as Int)
-            is Float    -> editor.putFloat(key, data as Float)
-            is Boolean  -> editor.putBoolean(key, data as Boolean)
+            is Long     -> editor.putLong(key, data)
+            is Int      -> editor.putInt(key, data)
+            is Float    -> editor.putFloat(key, data)
+            is Boolean  -> editor.putBoolean(key, data)
             is String  -> editor.putString(key, data.toString())
             is Serializable  -> editor.putString(key,data.toByteArray().toSerializedString())
             is Parcelable  -> editor.putString(key, parcelableToSerializedString(data))
@@ -94,25 +250,37 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
 //        getData(context,key,exampleObj.javaClass)
 
     /**
-     * Method to read object of Primitive(including wrappers) types from Shared Preference
+     * Method(blocking) to read object of Primitive(including wrappers) types from Shared Preference
      *
      * @param context Android Context
      * @param key unique key to the object to be saved
      * @param type subject class type
-     * @param 'instance' of subject type if found else null
+     * @return 'instance' of subject type if found else null
      * */
     fun <T : Serializable> getPrimitiveData(context: Context, key: String,type:Class<T>): T?
              = getSerializableData(context, key, type)
 
     /**
-     * Method to read object of Class that implements Serializable from Shared Preference
+     * Method to read object of Primitive(including wrappers) types with suspension
      *
      * @param context Android Context
      * @param key unique key to the object to be saved
      * @param type subject class type
-     * @param 'instance' of subject type if found else null
+     * @return 'instance' of subject type if found else null
      * */
-    fun <T : Serializable> getSerializableData(context: Context, key: String,type:Class<T>): T? {
+    suspend fun <T : Serializable> getPrimitiveDataSuspended(context: Context, key: String,type:Class<T>): T?
+             = runSuspended { getPrimitiveData(context, key, type)}
+
+    /**
+     * Method(blocking) to read object of Class that implements Serializable from Shared Preference
+     *
+     * @param context Android Context
+     * @param key unique key to the object to be saved
+     * @param type subject class type
+     * @return 'instance' of subject type if found else null
+     * */
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Serializable> getSerializableData(context: Context, key: String, type:Class<T>): T? {
         var retVal:T? = null
         getSharedPreferences(context).let {
             if (it.contains(key)){
@@ -136,11 +304,23 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
     }
 
     /**
-     * Method to read object of Class that implements Parcelable from Shared Preference
+     * Method to read object of Class that implements Serializable with suspension
      *
      * @param context Android Context
      * @param key unique key to the object to be saved
-     * @param 'instance' of subject type if found else null
+     * @param type subject class type
+     * @return 'instance' of subject type if found else null
+     * */
+    suspend fun <T : Serializable> getSerializableDataSuspended(context: Context, key: String, type:Class<T>): T?
+        = runSuspended { getSerializableData(context, key, type) }
+
+    /**
+     * Method(Blocking) to read object of Class that implements Parcelable from Shared Preference
+     *
+     * @param context Android Context
+     * @param key unique key to the object to be saved
+     * @param creator Parcelable.Creator of subject type
+     * @return 'instance' of subject type if found else null
      * */
     fun <T : Parcelable> getParcelableData(context: Context, key: String,
                                            creator: Parcelable.Creator<T>): T? {
@@ -162,6 +342,18 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
         }
         return retVal
     }
+
+    /**
+     * Method to read object of Class that implements Parcelable with suspension
+     *
+     * @param context Android Context
+     * @param key unique key to the object to be saved
+     * @param creator Parcelable.Creator of subject type
+     * @return 'instance' of subject type if found else null
+     * */
+    suspend fun <T : Parcelable> getParcelableDataSuspended( context: Context, key: String,
+                                                                creator: Parcelable.Creator<T>): T? =
+        runSuspended { getParcelableData(context, key, creator) }
 
     /**
      * Removes object with given key from Shared Preferences

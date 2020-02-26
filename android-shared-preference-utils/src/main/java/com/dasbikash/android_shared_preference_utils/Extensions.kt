@@ -2,10 +2,16 @@ package com.dasbikash.android_shared_preference_utils
 
 import android.os.Parcel
 import android.os.Parcelable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 internal fun ByteArray.toCharArray():CharArray{
     val charArray = CharArray(this.size)
@@ -34,6 +40,7 @@ internal fun java.io.Serializable.toByteArray():ByteArray{
     return buffer.toByteArray()
 }
 
+@Suppress("UNCHECKED_CAST")
 internal fun <T:java.io.Serializable> ByteArray.toSerializable(type:Class<T>):T{
     return ObjectInputStream(ByteArrayInputStream(this)).readObject() as T
 }
@@ -68,3 +75,13 @@ internal fun byteArrayToParcel(bytes: ByteArray): Parcel {
     parcel.setDataPosition(0)
     return parcel
 }
+
+internal suspend fun <T:Any> runSuspended(task:()->T?):T? {
+    coroutineContext().let {
+        return withContext(it) {
+            return@withContext async(Dispatchers.IO) { task() }.await()
+        }
+    }
+}
+
+internal suspend fun coroutineContext(): CoroutineContext = suspendCoroutine { it.resume(it.context) }
