@@ -32,6 +32,11 @@ internal fun CharArray.byteArray():ByteArray{
 internal fun ByteArray.toSerializedString():String = String(toCharArray())
 internal fun String.deserialize():ByteArray = toCharArray().byteArray()
 
+@Suppress("UNCHECKED_CAST")
+internal fun <T:java.io.Serializable> String.toSerializable(type:Class<T>):T?{
+    return this.deserialize().toSerializable(type)
+}
+
 internal fun java.io.Serializable.toByteArray():ByteArray{
     val buffer = ByteArrayOutputStream()
     val oos = ObjectOutputStream(buffer)
@@ -41,8 +46,13 @@ internal fun java.io.Serializable.toByteArray():ByteArray{
 }
 
 @Suppress("UNCHECKED_CAST")
-internal fun <T:java.io.Serializable> ByteArray.toSerializable(type:Class<T>):T{
-    return ObjectInputStream(ByteArrayInputStream(this)).readObject() as T
+private fun <T:java.io.Serializable> ByteArray.toSerializable(type:Class<T>):T?{
+    try {
+        return ObjectInputStream(ByteArrayInputStream(this)).readObject() as T
+    }catch (ex:Throwable){
+        ex.printStackTrace()
+        return null
+    }
 }
 
 internal fun parcelableToByteArray(parcelable: Parcelable): ByteArray {

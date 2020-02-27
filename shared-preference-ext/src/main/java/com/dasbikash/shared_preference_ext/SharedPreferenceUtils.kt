@@ -130,7 +130,7 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
                     .getStringSet(key, mutableSetOf())
                     ?.let {
                         if (it.isNotEmpty()) {
-                            return it.map { it.deserialize().toSerializable(setType) }.toSet()
+                            return it.map { it.toSerializable(setType) }.filter { it!=null }.map { it!! }.toSet()
                         }
                     }
             }catch (ex:Throwable){ex.printStackTrace()}
@@ -288,7 +288,7 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
                         type.isAssignableFrom(Float::class.java) -> it.getFloat(key, Float.MIN_VALUE)
                         type.isAssignableFrom(Boolean::class.java) -> it.getBoolean(key, false)
                         type.isAssignableFrom(String::class.java) -> it.getString(key, "")
-                        else -> it.getString(key,"")!!.deserialize().toSerializable(type)
+                        else -> it.getString(key,"")!!.toSerializable(type)
                     } as T?
                 }catch (ex:Throwable){
                     ex.printStackTrace()
