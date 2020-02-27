@@ -1,6 +1,6 @@
 # shared-preferences-ext
 
-Extension of android native Shared Preference Library with support for **Serializable** and **Parcelable** data types.
+Extension of android native Shared Preference Library with support for **`Serializable`** , **`Parcelable`**, **`Collection`** of Serializable and **`Collection`** of Parcelable data types.
 
 [![](https://jitpack.io/v/dasBikash84/shared-preferences-ext.svg)](https://jitpack.io/#dasBikash84/shared-preferences-ext)
 
@@ -25,7 +25,7 @@ dependencies {
 
 ## Features/Notes
 - On top of android default support added for `Serializable` and `Parcelable` data types.
-- Support provided also for `Set` of Serializable and Parcelable data types.
+- Support provided also for `Collection` of Serializable and Parcelable data types.
 - Data can be saved either by suspension, asynchronous or blocking function call.
 - Data retrieve can be done via suspension/blocking methods.
 - Interface for accessing Shared preferences simplified.
@@ -86,7 +86,7 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
     defaultUtils.saveData(context,student,percelableKey)
 
     //read and print data
-    defaultUtils.getParcelableData(context,percelableKey,Student::class.java)?.let {
+    defaultUtils.getParcelableData(context,percelableKey,Student.CREATOR)?.let {
         println(it)
     }
 ```
@@ -104,27 +104,27 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
         println(it)
     }
 ```
-##### Save and retrieve `Set` of objects that implement `Serializable` interface:
+##### Save and retrieve `Collection` of objects that implement `Serializable` interface:
 ```
     val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
-    val serSetKey = "SER_SET_SP_KEY"
+    val serListKey = "SER_LIST_SP_KEY"
     
     //Let Student class implements Serializable
-    val studentSet:Set<Student> = setOf<Student>(Student("Student 1"),Student("Student 2"),Student("Student 3")) 
+    val studentList:List<Student> = listOf<Student>(Student("Student 1"),Student("Student 2"),Student("Student 3")) 
     
     GlobalScope.launch{
     
-        //Saving Serializable set with suspension function
-        defaultUtils.saveSerializableSetSuspended(context, studentSet,serSetKey)
+        //Saving Serializable List with suspension function
+        defaultUtils.saveSerializableCollectionSuspended(context, studentList,serListKey)
         
         //read and print data
-        defaultUtils.getSerializableSetSuspended(context, Student::class.java,serSetKey)?.let {
-            //Set<Student> injected as it
+        defaultUtils.getSerializableCollectionSuspended(context, Student::class.java,serListKey)?.let {
+            //Collection<Student> injected as it
             println(it)
         }
     }    
 ```
-##### Save and retrieve `Set` of objects that implement `Parcelable` interface:
+##### Save and retrieve `Collection` of objects that implement `Parcelable` interface:
 ```
     val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
     val perSetKey = "PER_SET_SP_KEY"
@@ -133,11 +133,11 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
     val studentSet:Set<Student> = setOf<Student>(Student("Student 1"),Student("Student 2"),Student("Student 3")) 
     
     //Saving Parcelable set with blocking function call
-    defaultUtils.saveParcelableSetSync(context, studentSet,perSetKey)
+    defaultUtils.saveParcelableCollectionSync(context, studentSet,perSetKey)
         
     //read and print data
-    defaultUtils.getParcelableSet(context, Student::class.java,perSetKey)?.let {
-        //Set<Student> injected as it
+    defaultUtils.getParcelableCollection(context, Student.CREATOR,perSetKey)?.let {
+        //Collection<Student> injected as it
         println(it)
     }
 ```

@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -29,7 +30,7 @@ internal fun CharArray.byteArray():ByteArray{
     return bytes
 }
 
-internal fun ByteArray.toSerializedString():String = String(toCharArray())
+private fun ByteArray.toSerializedString():String = String(toCharArray())
 internal fun String.deserialize():ByteArray = toCharArray().byteArray()
 
 @Suppress("UNCHECKED_CAST")
@@ -37,12 +38,16 @@ internal fun <T:java.io.Serializable> String.toSerializable(type:Class<T>):T?{
     return this.deserialize().toSerializable(type)
 }
 
-internal fun java.io.Serializable.toByteArray():ByteArray{
+private fun java.io.Serializable.toByteArray():ByteArray{
     val buffer = ByteArrayOutputStream()
     val oos = ObjectOutputStream(buffer)
     oos.writeObject(this)
     oos.close()
     return buffer.toByteArray()
+}
+
+internal fun java.io.Serializable.toSerializedString():String{
+    return this.toByteArray().toSerializedString()
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -95,3 +100,14 @@ internal suspend fun <T:Any> runSuspended(task:()->T?):T? {
 }
 
 internal suspend fun coroutineContext(): CoroutineContext = suspendCoroutine { it.resume(it.context) }
+
+private val STRING_TAG_SEPARATOR = "!@#$%"
+internal fun String.addTag() = "${UUID.randomUUID().toString()}$STRING_TAG_SEPARATOR$this"
+
+internal fun String.removeTag():String?{
+    val tagSeparatorStartIndex = this.indexOf(STRING_TAG_SEPARATOR)
+    if (tagSeparatorStartIndex == -1){
+        return null
+    }
+    return substring(tagSeparatorStartIndex+STRING_TAG_SEPARATOR.length)
+}
