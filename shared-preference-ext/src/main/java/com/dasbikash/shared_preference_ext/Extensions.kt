@@ -31,7 +31,7 @@ internal fun CharArray.byteArray():ByteArray{
 }
 
 private fun ByteArray.toSerializedString():String = String(toCharArray())
-internal fun String.deserialize():ByteArray = toCharArray().byteArray()
+private fun String.deserialize():ByteArray = toCharArray().byteArray()
 
 @Suppress("UNCHECKED_CAST")
 internal fun <T:java.io.Serializable> String.toSerializable(type:Class<T>):T?{
@@ -101,13 +101,28 @@ internal suspend fun <T:Any> runSuspended(task:()->T?):T? {
 
 internal suspend fun coroutineContext(): CoroutineContext = suspendCoroutine { it.resume(it.context) }
 
-private val STRING_TAG_SEPARATOR = "!@#$%"
-internal fun String.addTag() = "${UUID.randomUUID().toString()}$STRING_TAG_SEPARATOR$this"
+private val STRING_TAG_SEPARATOR = "!@#$%!@#$%!@#$%"
+internal fun String.addTag(tag:String?=null):String{
+    val stringTag = when{
+        tag !=null -> tag
+        else -> UUID.randomUUID().toString()
+    }
+    return "$stringTag$STRING_TAG_SEPARATOR$this"
+}
 
-internal fun String.removeTag():String?{
-    val tagSeparatorStartIndex = this.indexOf(STRING_TAG_SEPARATOR)
-    if (tagSeparatorStartIndex == -1){
+internal fun String.removeTag():Pair<String,String>?{
+//    val tagSeparatorStartIndex = this.indexOf(STRING_TAG_SEPARATOR)
+//    if (tagSeparatorStartIndex == -1){
+//        return null
+//    }
+    try {
+        this.split(STRING_TAG_SEPARATOR).let {
+            return Pair(it[0],it[1])
+        }
+    }catch (ex:Throwable){
+        ex.printStackTrace()
         return null
     }
-    return substring(tagSeparatorStartIndex+STRING_TAG_SEPARATOR.length)
+
+//    return substring(tagSeparatorStartIndex+STRING_TAG_SEPARATOR.length)
 }

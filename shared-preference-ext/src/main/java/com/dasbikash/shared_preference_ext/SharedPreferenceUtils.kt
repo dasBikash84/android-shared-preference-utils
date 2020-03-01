@@ -23,7 +23,7 @@ import java.io.Serializable
  *
  * @author Bikash Das(das.bikash.dev@gmail.com)
  * */
-class SharedPreferenceUtils(private val SP_FILE_KEY:String){
+class SharedPreferenceUtils internal constructor(private val SP_FILE_KEY:String){
 
     /**
      * Method to get hold of subject 'SharedPreferences' instance
@@ -116,6 +116,97 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
     }
 
     /**
+     * Method(async) to save Map<K : Serializable,V : Serializable> on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Map<K : Serializable,V : Serializable>
+     * @param key unique key to the object to be saved
+     * */
+    fun <K : Serializable,V : Serializable> saveSerializableMap(context: Context, data: Map<K,V>, key: String) =
+        GlobalScope.launch {saveSerializableMapSync(context, data, key)}
+
+    /**
+     * Method(suspend) to save Map<K : Serializable,V : Serializable> on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Map<K : Serializable,V : Serializable>
+     * @param key unique key to the object to be saved
+     * */
+    suspend fun <K : Serializable,V : Serializable> saveSerializableMapSuspended(context: Context, data: Map<K,V>, key: String) =
+        runSuspended { saveSerializableMapSync(context, data, key)}
+
+    /**
+     * Method(blocking) to save Map<K : Serializable,V : Serializable> on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Map<K : Serializable,V : Serializable>
+     * @param key unique key to the object to be saved
+     * */
+    fun <K : Serializable,V : Serializable> saveSerializableMapSync(context: Context, data: Map<K,V>, key: String) =
+        saveSerializableMap(getSpEditor(context), data, key)
+
+    private fun <K : Serializable,V : Serializable> saveSerializableMap(editor: SharedPreferences.Editor,
+                                                                               data: Map<K,V>,
+                                                                               key: String) {
+        val dataSet = mutableSetOf<String>()
+        data.keys.asSequence().forEach {
+            dataSet.add(data.get(it)!!.toSerializedString().addTag(it.toSerializedString()))
+        }
+        editor.putStringSet(key,dataSet)
+        editor.apply()
+    }
+
+    /**
+     * Method(suspend) to read Map<K : Serializable,V : Serializable> from Shared Preference
+     *
+     * @param context Android Context
+     * @param key unique key to the object to be saved
+     * @param keyType class type of Map key
+     * @param valueType class type of Map value
+     * @return Map<K : Serializable,V : Serializable> if found else null
+     * */
+
+    suspend fun <K : Serializable,V : Serializable> getSerializableMapSuspended(
+                                    context: Context,keyType:Class<K>,valueType:Class<V>,key: String)
+            :Map<K,V>?  =
+        runSuspended { getSerializableMap(context, keyType, valueType, key) }
+
+    /**
+     * Method(blocking) to read Map<K : Serializable,V : Serializable> from Shared Preference
+     *
+     * @param context Android Context
+     * @param key unique key to the object to be saved
+     * @param keyType class type of Map key
+     * @param valueType class type of Map value
+     * @return Map<K : Serializable,V : Serializable> if found else null
+     * */
+    fun <K : Serializable,V : Serializable> getSerializableMap(
+                                    context: Context,keyType:Class<K>,valueType:Class<V>,key: String)
+            :Map<K,V>? {
+        val dataSet = mutableMapOf<K,V>()
+        try {
+            getSharedPreferences(context)
+                .getStringSet(key, mutableSetOf<String>())?.let {
+                    if (it.isNotEmpty()) {
+                        it.asSequence()
+                            .map { it.removeTag() }
+                            .filter { it != null }
+                            .map { it!! }.forEach {
+                                dataSet.put(
+                                    it.first.toSerializable(keyType)!!,
+                                    it.second.toSerializable(valueType)!!
+                                )
+                            }
+                        return dataSet.toMap()
+                    }
+                }
+        }catch (ex:Throwable){
+            ex.printStackTrace()
+        }
+        return null
+    }
+
+    /**
      * Method(blocking) to read object Collection of Class, that implements Serializable from Shared Preference
      *
      * @param context Android Context
@@ -130,7 +221,7 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
                     .getStringSet(key, mutableSetOf())
                     ?.let {
                         if (it.isNotEmpty()) {
-                            return it.map { it.removeTag()?.toSerializable(type) }.filter { it!=null }.map { it!! }
+                            return it.map { it.removeTag()?.second?.toSerializable(type) }.filter { it!=null }.map { it!! }
                         }
                     }
             }catch (ex:Throwable){ex.printStackTrace()}
@@ -202,7 +293,7 @@ class SharedPreferenceUtils(private val SP_FILE_KEY:String){
                     .getStringSet(key, mutableSetOf())
                     ?.let {
                         if (it.isNotEmpty()) {
-                            return it.map { it.removeTag()?.toParcelable(creator) }.filter { it!=null }.map { it!! }
+                            return it.map { it.removeTag()?.second?.toParcelable(creator) }.filter { it!=null }.map { it!! }
                         }
                     }
             }catch (ex:Throwable){ex.printStackTrace()}
