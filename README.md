@@ -1,6 +1,8 @@
 # shared-preferences-ext
 
-Extension of android native Shared Preference Library with support for **`Serializable`** , **`Parcelable`**, **`Collection`** of Serializable and **`Collection`** of Parcelable data types.
+Extension of android native Shared Preferences Library with support for **`Serializable`** , **`Parcelable`**, **`Collection<T:Serializable>`**,**`Collection<T:Parcelable>`**, **`Map<K : Serializable,V : Serializable>`** and **`Map<K : Serializable,V : Parcelable>`** data types.
+i.e. Almost any object can be saved into Shared Preferences.
+
 
 [![](https://jitpack.io/v/dasBikash84/shared-preferences-ext.svg)](https://jitpack.io/#dasBikash84/shared-preferences-ext)
 
@@ -25,7 +27,8 @@ dependencies {
 
 ## Features/Notes
 - On top of android default support added for `Serializable` and `Parcelable` data types.
-- Support provided also for `Collection` of Serializable and Parcelable data types.
+- Support provided for `Collection<T: Serializable>` and `Collection<T: Parcelable>` data types.
+- Support for `Map<K : Serializable,V : Serializable>` and `Map<K : Serializable,V : Parcelable>` data types.
 - Data can be saved either by suspension, asynchronous or blocking function call.
 - Data retrieve can be done via suspension/blocking methods.
 - Interface for accessing Shared preferences simplified.
@@ -140,6 +143,50 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
         //Collection<Student> injected as it
         println(it)
     }
+```
+##### Save and retrieve for `Map<K : Serializable,V : Serializable>`:
+```
+    val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
+    val serMapKey = "SER_MAP_SP_KEY"
+    
+    //Let Student class implements Serializable
+    val students = mutableMapOf<String,Student>()
+    students.put(UUID.randomUUID().toString(), Student("Student 1"))
+    students.put(UUID.randomUUID().toString(), Student("Student 2"))
+    
+    GlobalScope.launch{
+    
+        //Saving Serializable Map with suspension function
+        defaultUtils.saveSerializableMapSuspended(context, students,serMapKey)
+        
+        //read and print data
+        defaultUtils.getSerializableMapSuspended(context, String::class.java,Student::class.java,serMapKey)?.let {
+            //Map<String,Student> injected as it
+            println(it)
+        }
+    }    
+```
+##### Save and retrieve for `Map<K : Serializable,V : Parcelable>`:
+```
+    val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
+    val perMapKey = "PER_MAP_SP_KEY"
+    
+    //Let Student class implements Parcelable
+    val students = mutableMapOf<String,Student>()
+    students.put(UUID.randomUUID().toString(), Student("Student 1"))
+    students.put(UUID.randomUUID().toString(), Student("Student 2"))
+    
+    GlobalScope.launch{
+    
+        //Saving Parcelable Map with suspension function
+        defaultUtils.saveParcelableMapSuspended(context, students,perMapKey)
+        
+        //read and print data
+        defaultUtils.getParcelableMapSuspended(context, String::class.java,Student.Creator,perMapKey)?.let {
+            //Map<String,Student> injected as it
+            println(it)
+        }
+    }    
 ```
 License
 --------
