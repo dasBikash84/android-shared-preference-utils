@@ -157,6 +157,49 @@ class SharedPreferenceUtils internal constructor(private val SP_FILE_KEY:String)
     }
 
     /**
+     * Method(async) to save Map<K : Serializable,V : Parcelable> on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Map<K : Serializable,V : Parcelable>
+     * @param key unique key to the object to be saved
+     * */
+    fun <K : Serializable,V : Parcelable> saveParcelableMap(context: Context,
+                                                                    data: Map<K,V>,key: String)
+        = GlobalScope.launch { saveParcelableMapSync(context,data,key) }
+
+    /**
+     * Method(suspend) to save Map<K : Serializable,V : Parcelable> on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Map<K : Serializable,V : Parcelable>
+     * @param key unique key to the object to be saved
+     * */
+    suspend fun <K : Serializable,V : Parcelable> saveParcelableMapSuspended(context: Context,
+                                                                    data: Map<K,V>,key: String)
+        = runSuspended { saveParcelableMapSync(context,data,key) }
+
+    /**
+     * Method(blocking) to save Map<K : Serializable,V : Parcelable> on Shared Preference
+     *
+     * @param context Android Context
+     * @param data Map<K : Serializable,V : Parcelable>
+     * @param key unique key to the object to be saved
+     * */
+    fun <K : Serializable,V : Parcelable> saveParcelableMapSync(context: Context,
+                                                                    data: Map<K,V>,key: String)
+        = saveParcelableMap(getSpEditor(context),data,key)
+
+    private fun <K : Serializable,V : Parcelable> saveParcelableMap(editor: SharedPreferences.Editor,
+                                                                    data: Map<K,V>,key: String) {
+        val dataSet = mutableSetOf<String>()
+        data.keys.asSequence().forEach {
+            dataSet.add(data.get(it)!!.toSerializedString().addTag(it.toSerializedString()))
+        }
+        editor.putStringSet(key,dataSet)
+        editor.apply()
+    }
+
+    /**
      * Method(suspend) to read Map<K : Serializable,V : Serializable> from Shared Preference
      *
      * @param context Android Context
@@ -195,6 +238,56 @@ class SharedPreferenceUtils internal constructor(private val SP_FILE_KEY:String)
                                 dataSet.put(
                                     it.first.toSerializable(keyType)!!,
                                     it.second.toSerializable(valueType)!!
+                                )
+                            }
+                        return dataSet.toMap()
+                    }
+                }
+        }catch (ex:Throwable){
+            ex.printStackTrace()
+        }
+        return null
+    }
+
+    /**
+     * Method(suspend) to read Map<K : Serializable,V : Parcelable> from Shared Preference
+     *
+     * @param context Android Context
+     * @param key unique key to the object to be saved
+     * @param keyType class type of Map key
+     * @param creator Parcelable.Creator of subject value type
+     * @return Map<K : Serializable,V : Serializable> if found else null
+     * */
+    suspend fun <K : Serializable,V : Parcelable> getParcelableMapSuspended(
+                                    context: Context,keyType:Class<K>,
+                                    creator: Parcelable.Creator<V>,key: String)
+            :Map<K,V>?  = runSuspended { getParcelableMap(context, keyType, creator, key) }
+
+    /**
+     * Method(blocking) to read Map<K : Serializable,V : Parcelable> from Shared Preference
+     *
+     * @param context Android Context
+     * @param key unique key to the object to be saved
+     * @param keyType class type of Map key
+     * @param creator Parcelable.Creator of subject value type
+     * @return Map<K : Serializable,V : Serializable> if found else null
+     * */
+    fun <K : Serializable,V : Parcelable> getParcelableMap(
+                                    context: Context,keyType:Class<K>,
+                                    creator: Parcelable.Creator<V>,key: String)
+            :Map<K,V>? {
+        val dataSet = mutableMapOf<K,V>()
+        try {
+            getSharedPreferences(context)
+                .getStringSet(key, mutableSetOf<String>())?.let {
+                    if (it.isNotEmpty()) {
+                        it.asSequence()
+                            .map { it.removeTag() }
+                            .filter { it != null }
+                            .map { it!! }.forEach {
+                                dataSet.put(
+                                    it.first.toSerializable(keyType)!!,
+                                    it.second.toParcelable(creator)
                                 )
                             }
                         return dataSet.toMap()
@@ -246,13 +339,12 @@ class SharedPreferenceUtils internal constructor(private val SP_FILE_KEY:String)
      * @param context Android Context
      * @param data Collection of object for saving
      * @param key unique key to the object to be saved
-     * @param saveSynced Whether should be saved synced
      * */
     fun <T : Parcelable> saveParcelableCollection(context: Context, data: Collection<T>, key: String)
             = GlobalScope.launch{saveParcelableCollectionSync(context, data, key)}
 
     private fun <T : Parcelable> saveParcelableCollection(editor: SharedPreferences.Editor, data: Collection<T>, key: String) {
-        data.map { parcelableToSerializedString(it).addTag() }.toMutableSet().let {
+        data.map { it.toSerializedString().addTag() }.toMutableSet().let {
             editor.putStringSet(key,it)
         }
         editor.apply()
@@ -320,7 +412,7 @@ class SharedPreferenceUtils internal constructor(private val SP_FILE_KEY:String)
             is Boolean  -> editor.putBoolean(key, data)
             is String  -> editor.putString(key, data.toString())
             is Serializable  -> editor.putString(key,data.toSerializedString())
-            is Parcelable  -> editor.putString(key, parcelableToSerializedString(data))
+            is Parcelable  -> editor.putString(key, data.toSerializedString())
             else -> return false
         }
         editor.apply()

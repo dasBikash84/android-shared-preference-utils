@@ -60,18 +60,17 @@ private fun <T:java.io.Serializable> ByteArray.toSerializable(type:Class<T>):T?{
     }
 }
 
-internal fun parcelableToByteArray(parcelable: Parcelable): ByteArray {
+private fun Parcelable.toByteArray(): ByteArray {
     val parcel = Parcel.obtain()
-    parcelable.writeToParcel(parcel, 0)
+    this.writeToParcel(parcel, 0)
     val bytes = parcel.marshall()
     parcel.recycle()
     return bytes
 }
 
-internal fun parcelableToSerializedString(parcelable: Parcelable): String {
-    return parcelableToByteArray(parcelable).toSerializedString()
+internal fun Parcelable.toSerializedString(): String {
+    return this.toByteArray().toSerializedString()
 }
-
 
 internal fun <T : Parcelable> String.toParcelable(creator: Parcelable.Creator<T>):T
         = byteArrayToParcelable(toCharArray().byteArray(),creator)
