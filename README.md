@@ -32,7 +32,7 @@ dependencies {
 - Data can be saved either by suspension, asynchronous or blocking function call.
 - Data retrieve can be done via suspension/blocking methods.
 - Interface for accessing Shared preferences simplified.
-- If saved object implements both Serializable & Parcelable then use [`getSerializableData`](https://github.com/dasBikash84/shared-preferences-ext/blob/master/android-shared-preference-utils/src/main/java/com/dasbikash/android_shared_preference_utils/SharedPreferenceUtils.kt) method to read object from Shared Preferences.
+- If saved object implements both Serializable & Parcelable then use [`getSerializableData`](https://github.com/dasBikash84/shared-preferences-ext/blob/master/shared-preference-ext/src/main/java/com/dasbikash/shared_preference_ext/SharedPreferenceUtils.kt) method to read object from Shared Preferences.
 
 ## Usage example
 
