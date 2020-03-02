@@ -113,11 +113,11 @@ class SharedPreferenceUtils internal constructor(private val SP_FILE_KEY:String)
             if (it.contains(key)){
                 try {
                     retVal =  when {
-                        type.isAssignableFrom(Long::class.java) -> it.getLong(key, Long.MIN_VALUE)
-                        type.isAssignableFrom(Int::class.java) -> it.getInt(key, Int.MIN_VALUE)
-                        type.isAssignableFrom(Float::class.java) -> it.getFloat(key, Float.MIN_VALUE)
-                        type.isAssignableFrom(Boolean::class.java) -> it.getBoolean(key, false)
-                        type.isAssignableFrom(String::class.java) -> it.getString(key, "")
+                        type.isInstance(Long.MIN_VALUE) -> it.getLong(key, Long.MIN_VALUE)
+                        type.isInstance(Int.MIN_VALUE) -> it.getInt(key, Int.MIN_VALUE)
+                        type.isInstance(Float.MIN_VALUE) -> it.getFloat(key, Float.MIN_VALUE)
+                        type.isInstance(false) -> it.getBoolean(key, false)
+                        type.isInstance("") -> it.getString(key, "")
                         else -> it.getString(key,"")!!.toSerializable(type)
                     } as T?
                 }catch (ex:Throwable){
