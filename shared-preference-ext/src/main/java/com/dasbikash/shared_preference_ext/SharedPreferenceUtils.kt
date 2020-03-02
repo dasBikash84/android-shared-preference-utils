@@ -11,15 +11,15 @@ import java.io.Serializable
  * Helper class for Shared Preference related operations.
  *
  * Supported types:
- * All <b>Primitive(also wrappers) types</b>
- * Any type implementing <b>Serializable</b>
- * Any type implementing <b>Parcelable</b>
- *
+ * ```
+ * All Primitive(with wrapper) types
+ * <T:Serializable>,<T:Parcelable>
+ * Collection<T:Serializable>,Collection<T:Parcelable>
+ * Map<K:Serializable,V:Serializable>,Map<K:Serializable,V:Parcelable>
+ * ```
  * Supports multiple Shared preference instances
  *
- * If object implements both Serializable & Parcelable
- * then use <b>getSerializableData(context: Context, key: String,type:Class<T>)</b>
- * to read object from Shared Preferences.
+ * [`Example`](https://github.com/dasBikash84/shared-preferences-ext/blob/master/README.md)
  *
  * @author Bikash Das(das.bikash.dev@gmail.com)
  * */
