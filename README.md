@@ -32,7 +32,6 @@ dependencies {
 - Data can be saved either by suspension, asynchronous or blocking function call.
 - Data retrieve can be done via suspension/blocking methods.
 - Interface for accessing Shared preferences simplified.
-- If saved object implements both Serializable & Parcelable then use [`getSerializableData`](https://github.com/dasBikash84/shared-preferences-ext/blob/master/shared-preference-ext/src/main/java/com/dasbikash/shared_preference_ext/SharedPreferenceUtils.kt) method to read object from Shared Preferences.
 
 ## Usage example
 
@@ -44,39 +43,35 @@ val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstan
 ```
 val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name")
 ```
-##### Save and retrieve `primitive(and Wrapper)` data types:
+##### Save and retrieve `primitive(and Wrapper)` and `Serializable` data types:
 ```
     val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
     val intKey = "INT_SP_KEY"
     val doubleKey = "DOUBLE_SP_KEY"
+    val serializableKey = "SER_SP_KEY"
     val intData = 10
     val doubleData = 10.0
-    
-    //save data
-    defaultUtils.saveData(context,intData,intKey)
-    defaultUtils.saveData(context,doubleData,doubleKey)
-    
-    //read and print data
-    defaultUtils.getPrimitiveData(context,intKey,Int::class.java)?.let {
-        println(it)
-    }
-    defaultUtils.getPrimitiveData(context,doubleKey,Double::class.java)?.let {
-        println(it)
-    }
-```
-
-##### Save and retrieve classes that implement `Serializable` interface:
-```
-    val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
-    val serializableKey = "SER_SP_KEY"
     val student = Student() //Student class implements Serializable
-
-    //save data
-    defaultUtils.saveData(context,student,serializableKey)
-
-    //read and print data
-    defaultUtils.getSerializableData(context,serializableKey,Student::class.java)?.let {
-        println(it)
+    
+    GlobalScope.launch {
+    
+        //save data
+        
+        defaultUtils.saveDataSync(context,intData,intKey)
+        defaultUtils.saveDataSuspended(context,doubleData,doubleKey)
+        defaultUtils.saveDataSuspended(context,student,serializableKey)
+        
+        //read and print data
+        
+        defaultUtils.getDataSuspended(context,intKey,Int::class.java)?.let {
+            println(it)
+        }
+        defaultUtils.getData(context,doubleKey,Double::class.java)?.let {
+            println(it)
+        }
+        defaultUtils.getDataSuspended(context,serializableKey,Student::class.java)?.let {
+            println(it)
+        }
     }
 ```
 ##### Save and retrieve classes that implement `Parcelable` interface:
@@ -86,24 +81,10 @@ val utils: SharedPreferenceUtils = SharedPreferenceUtils.getInstance("file_name"
     val student = Student() //Student class implements Parcelable
 
     //save data
-    defaultUtils.saveData(context,student,percelableKey)
+    defaultUtils.saveParcelableSync(context,student,percelableKey)
 
     //read and print data
     defaultUtils.getParcelableData(context,percelableKey,Student.CREATOR)?.let {
-        println(it)
-    }
-```
-##### Save and retrieve class that implements both `Serializable` and `Parcelable` interfaces:
-```
-    val defaultUtils: SharedPreferenceUtils = SharedPreferenceUtils.getDefaultInstance()
-    val serPerKey = "SER_PER_SP_KEY"
-    val student = Student() //Student class implements Serializable and Parcelable both
-
-    //save data
-    defaultUtils.saveData(context,student,serPerKey)
-
-    //read and print data
-    defaultUtils.getSerializableData(context,serPerKey,Student::class.java)?.let {
         println(it)
     }
 ```
