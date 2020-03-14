@@ -3,6 +3,7 @@ package com.dasbikash.shared_preference_ext
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Parcelable
+import androidx.annotation.Keep
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.Serializable
@@ -113,11 +114,11 @@ class SharedPreferenceUtils internal constructor(private val SP_FILE_KEY:String)
             if (it.contains(key)){
                 try {
                     retVal =  when {
-                        type.isInstance(Long.MIN_VALUE) -> it.getLong(key, Long.MIN_VALUE)
-                        type.isInstance(Int.MIN_VALUE) -> it.getInt(key, Int.MIN_VALUE)
-                        type.isInstance(Float.MIN_VALUE) -> it.getFloat(key, Float.MIN_VALUE)
-                        type.isInstance(false) -> it.getBoolean(key, false)
-                        type.isInstance("") -> it.getString(key, "")
+                        type.isAssignableFrom(Long::class.java) -> it.getLong(key, Long.MIN_VALUE)
+                        type.isAssignableFrom(Int::class.java) -> it.getInt(key, Int.MIN_VALUE)
+                        type.isAssignableFrom(Float::class.java) -> it.getFloat(key, Float.MIN_VALUE)
+                        type.isAssignableFrom(false.javaClass) -> it.getBoolean(key, false)
+                        type.isAssignableFrom(String::class.java) -> it.getString(key, "")
                         else -> it.getString(key,"")!!.toSerializable(type)
                     } as T?
                 }catch (ex:Throwable){
@@ -597,5 +598,13 @@ class SharedPreferenceUtils internal constructor(private val SP_FILE_KEY:String)
          * */
         @JvmStatic
         fun getDefaultInstance() = SharedPreferenceUtils(DEFAULT_SP_FILE_NAME)
+
+        @Keep
+        private class SpEntry(
+            var data:String,
+            var type:Class<*>,
+            var keyType:Class<*>?=null,
+            var valueType:Class<*>?=null
+        ):Serializable
     }
 }
